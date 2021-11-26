@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DvG Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/style.css">
+    <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <!-- Login -->
+    <div id="login" class="page">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-warning">
+            <a class="navbar-brand h1">DvG Game</a>
+        </nav>
+        <div id="about-the-app">
+            <h1 style="margin-top: 90px;">Draw and Guess Game!!!</h1>
+            <h4>PBL4 app by CMT , TPN , TLD</h4>
+        </div>
+        <div id="login-box">
+            <button id="new-game-button"><b>Create a new game.</b></button>
+            <span style="margin-top: 2rem;margin-bottom: 2rem;"><b>or</b></span>
+            <input id="join-game" class="brower-default" type="text" placeholder="Enter the game ID...">
+            <span id="game-not-found">The game ID does not exist.Check the game ID and try again.</span>
+        </div>
+        <div id="player-name-box" style="display:none;">
+            <input type="text" class="browser-default" id="player-name" placeholder="Enter your name">
+        </div>
+    </div>
+    
+    <!-- Game -->
+    <div id="pictionary" class="page">
+        <span id="game-code"></span>
+        <span id="draw-info"></span>
+        <a class="waves-effect waves-light btn-large light-blue accent-3" id="new-word-button">New Word</a>
+        <span id="player-info"></span>
+        <span id="guess-window"><div></div></span>
+        <main id="draw-window" style="z-index:-1;"></main>
+        <div id="draw-controls" class="sidebar">
+            <ul>
+				<li>
+					<label for="weight">Stroke:</label>
+					<input type="range" id="weight" min="2" max="10" />
+				</li>
+				<li>
+					<label for ="color">Color:</label>
+					<input type="color" id="color" />
+				</li>
+				<li>
+					<button id="clear-button">CLEAR<i class="fa fa-trash"></i></button>
+				</li>
+			</ul>
+        </div>
+        <input class="brower-default" type="text" placeholder="Let's guess what they drawing.." id="guesser-input">
+    </div>
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.6/p5.js"></script>
+    <script src="./js/index.js"></script>
+    <script src="./js/paint.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js" integrity="sha512-Y5MDU6RaF5h5HE5BgqJlKkV12kbkbIgWHutcT+XHHNOUzr+HHjWZGC02sqEguuPglmFms3cc08WH2PhQ5rF8Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <!-- <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+</body>
+</html>
