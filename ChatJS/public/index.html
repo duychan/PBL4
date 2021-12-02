@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>DvG Game</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="./css/style.css">
-    <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="http://localhost:6969/socket.io/socket.io.js"></script>
 </head>
+
 <body>
     <!-- Login -->
     <div id="login" class="page">
@@ -27,7 +29,7 @@
             <input type="text" class="browser-default" id="player-name" placeholder="Enter your name">
         </div>
     </div>
-    
+
     <!-- Game -->
     <div id="pictionary" class="page">
         <span id="game-code"></span>
@@ -38,22 +40,22 @@
         <main id="draw-window" style="z-index:-1;"></main>
         <div id="draw-controls" class="sidebar">
             <ul>
-				<li>
-					<label for="weight">Stroke:</label>
-					<input type="range" id="weight" min="2" max="10" />
-				</li>
-				<li>
-					<label for ="color">Color:</label>
-					<input type="color" id="color" />
-				</li>
-				<li>
-					<button id="clear-button">CLEAR<i class="fa fa-trash"></i></button>
-				</li>
-			</ul>
+                <li>
+                    <label for="weight">Stroke:</label>
+                    <input type="range" id="weight" min="2" max="10" />
+                </li>
+                <li>
+                    <label for="color">Color:</label>
+                    <input type="color" id="color" />
+                </li>
+                <li>
+                    <button id="clear-button">CLEAR<i class="fa fa-trash"></i></button>
+                </li>
+            </ul>
         </div>
         <input class="brower-default" type="text" placeholder="Let's guess what they drawing.." id="guesser-input">
     </div>
-    
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.6/p5.js"></script>
     <script src="./js/index.js"></script>
@@ -61,4 +63,5 @@
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js" integrity="sha512-Y5MDU6RaF5h5HE5BgqJlKkV12kbkbIgWHutcT+XHHNOUzr+HHjWZGC02sqEguuPglmFms3cc08WH2PhQ5rF8Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
     <!-- <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script> -->
 </body>
+
 </html>

@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const http = require("http").createServer(app);
 const io = require('socket.io')(http)
-const port = 3000;
+const port = 6969;
 const fs = require('fs')
 
 let connections = []
@@ -19,7 +19,7 @@ fs.readFile('trimmed_word_list.json', (err, data) => {
     }
 })
 
-io.sockets.on('connection', (socket) => {
+io.on('connection', (socket) => {
     connections.push(socket);
     console.log(`Connected: ${connections.length} sockets connected`);
 
