@@ -22,8 +22,9 @@ fs.readFile('trimmed_word_list.json', (err, data) => {
 io.on('connection', (socket) => {
     connections.push(socket);
     console.log(`Connected: ${connections.length} sockets connected`);
-
+    socket.emit('getInstanceId', { id: socket.id });
     socket.emit('query_ingame');
+    1638550292177
     socket.on('answer_ingame', (inGame) => {
         if (inGame === true) {
             socket.emit('quit_game');
@@ -103,12 +104,12 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('draw_event', (line_data) => {
-        // block guessers from sending drawings to the other players
-        if (socket.role === 'drawer') {
-            socket.broadcast.to(socket.gameCode).emit('draw_data', line_data);
-        }
-    });
+    // socket.on('draw_event', (line_data) => {
+    //     // block guessers from sending drawings to the other players
+    //     if (socket.role === 'drawer') {
+    //         socket.broadcast.to(socket.gameCode).emit('draw_data', line_data);
+    //     }
+    // });
 
     socket.on('make_guess', (guess) => {
         if (guess === '') {
@@ -131,13 +132,19 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('startDraw', res => {
+        io.emit('startFromServer', {...res, id: socket.id })
+    })
+    socket.on('Drawing', res => {
+        io.emit('drawingFromServer', {...res, id: socket.id });
+    })
     socket.on('clear_draw_screen', () => {
         if (socket.role === 'drawer') {
             io.to(socket.gameCode).emit('clear_draw_screen');
             // drawer (and only the drawer) can request all screens to be cleared
         }
-    })
-})
+    });
+});
 
 http.listen(port, function() {
     console.log("Running")
@@ -146,7 +153,7 @@ http.listen(port, function() {
 app.use(express.static(__dirname + '/public'));
 
 function generateGameCode() {
-    return String(getRandomNumberInRange(100000, 999999));
+    return String(new Date().getTime());
 }
 
 function getGameWord(words) {
