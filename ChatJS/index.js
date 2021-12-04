@@ -24,7 +24,6 @@ io.on('connection', (socket) => {
     console.log(`Connected: ${connections.length} sockets connected`);
     socket.emit('getInstanceId', { id: socket.id });
     socket.emit('query_ingame');
-    1638550292177
     socket.on('answer_ingame', (inGame) => {
         if (inGame === true) {
             socket.emit('quit_game');
@@ -117,7 +116,7 @@ io.on('connection', (socket) => {
         } else if (guess.toLowerCase() === getCurrentWord(socket.gameCode).toLowerCase()) {
             io.to(socket.gameCode).emit('winner', socket.playerName, getCurrentWord(socket.gameCode));
             console.log(` Game #${socket.gameCode}: ${socket.playerName} won! (word was "${getCurrentWord(socket.gameCode)}")`);
-            setTimeout(startNewGame, 10000, socket);
+            setTimeout(startNewGame, 1000, socket);
         } else {
             io.to(socket.gameCode).emit('display_guess', socket.playerName, guess);
         }
@@ -131,19 +130,20 @@ io.on('connection', (socket) => {
             io.to(socket.gameCode).emit('clear_draw_screen');
         }
     });
+    ///
 
     socket.on('startDraw', res => {
-        io.emit('startFromServer', {...res, id: socket.id })
-    })
-    socket.on('Drawing', res => {
-        io.emit('drawingFromServer', {...res, id: socket.id });
-    })
-    socket.on('clear_draw_screen', () => {
-        if (socket.role === 'drawer') {
-            io.to(socket.gameCode).emit('clear_draw_screen');
-            // drawer (and only the drawer) can request all screens to be cleared
-        }
+        io.to(socket.gameCode).emit('startFromServer', {...res, id: socket.id })
     });
+    socket.on('Drawing', res => {
+        io.to(socket.gameCode).emit('drawingFromServer', {...res, id: socket.id });
+    });
+    socket.on('clear', res => {
+        io.to(socket.gameCode).emit('clearFromServer', {...res, id: socket.id });
+    });
+
+    ///
+    ;
 });
 
 http.listen(port, function() {
@@ -153,7 +153,7 @@ http.listen(port, function() {
 app.use(express.static(__dirname + '/public'));
 
 function generateGameCode() {
-    return String(new Date().getTime());
+    return String(getRandomNumberInRange(100000, 999999));
 }
 
 function getGameWord(words) {

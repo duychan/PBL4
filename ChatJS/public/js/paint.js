@@ -4,18 +4,14 @@ const canvas = document.querySelector("#workspace");
 
 const colorInput = document.querySelector('#color');
 const weight = document.querySelector('#weight');
-let stroke_color = colorInput.value;
-let stroke_weight = weight.value;
-
 
 
 canvas.width = 950;
 canvas.height = 600;
 let background = "white";
-let backgroundColor = "white";
 let isDrawing = false;
 let drawWidth = 10;
-let drawColor = "black";
+let drawColor = "white";
 let arrImg = [];
 let indexDraw = -1;
 const ctx = canvas.getContext('2d');
@@ -25,6 +21,10 @@ canvas.addEventListener("mousedown", start, false);
 canvas.addEventListener("mousemove", draw, false);
 canvas.addEventListener("mouseup", end, false);
 canvas.addEventListener("mouseover", end, false);
+
+
+
+
 
 function start(e) {
     isDrawing = true;
@@ -51,7 +51,7 @@ function draw(e) {
         ctx.lineJoin = "round";
         ctx.stroke();
         let stroke_color = colorInput.value;
-        ctx.strokeStyle = colorInput.value;
+        ctx.strokeStyle = stroke_color;
         socket.emit('Drawing', {
             isDrawing: true,
             x,
@@ -65,16 +65,15 @@ function draw(e) {
 
 function end(e) {
     if (isDrawing) {
+        isDrawing = false;
         ctx.closePath();
         indexDraw += 1;
         arrImg.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-        isDrawing = false;
         socket.emit('stopDraw', {
             isDrawing,
             indexDraw,
-        })
+        });
     }
-    e.preventDefault();
 }
 
 // clear canvas
@@ -88,7 +87,7 @@ function clearr() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawColor = "black";
     socket.emit('clear', {
-        backgroundColor,
+        background,
         drawColor
     });
 }
@@ -138,7 +137,6 @@ socket.on('getInstanceId', (res) => {
 });
 
 socket.on('startFromServer', (res) => {
-    console.log(res.id, socketId)
     if (res.id !== socketId) {
         ctx.beginPath();
         ctx.moveTo(res.x, res.y);
@@ -162,7 +160,7 @@ socket.on('stopFromServer', (res) => {
     }
 });
 socket.on('clearFromServer', res => {
-    ctx.fillStyle = res.backgroundColor;
+    ctx.fillStyle = res.background;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawColor = res.drawColor;

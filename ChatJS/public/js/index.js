@@ -18,8 +18,6 @@ let newWordButton = document.querySelector('#new-word-button');
 let clearButton = document.querySelector('#clear-button');
 let drawControls = document.querySelector('#draw-controls');
 
-const canvas1 = document.querySelector("#workspace");
-
 
 let inGame = false;
 
@@ -94,7 +92,7 @@ socket.on('game_found', () => {
 });
 
 socket.on('game_not_found', () => {
-    hide_all_pages();
+    hidePages();
     loginPage.style.display = 'block';
     loginBox.style.display = 'flex';
     gameNotFound.style.display = 'block';
@@ -111,6 +109,7 @@ socket.on('game_word', (word) => {
 });
 
 socket.on('active_players', (players) => {
+    console.log(players);
     playerInfo.innerHTML = '';
     players.forEach((player) => {
         if (player.role === 'drawer') {
@@ -123,23 +122,22 @@ socket.on('active_players', (players) => {
 
 socket.on('player_role', (role) => {
     if (role === 'drawer') {
+        clearr();
         pictionaryPage.style.display = 'block';
         drawInfo.style.display = 'block';
         guesserInput.style.display = 'none';
         newWordButton.style.display = 'block';
         drawControls.style.display = 'block';
         // enable drawing if drawer
-
+        canvas.addEventListener('mousedown', start, false);
     } else {
         pictionaryPage.style.display = 'block';
         drawInfo.style.display = 'none';
         guesserInput.style.display = 'block';
         newWordButton.style.display = 'none';
         drawControls.style.display = 'none';
-
         // disable drawing if guesser
-
-
+        canvas.removeEventListener('mousedown', start, false);
     }
 });
 
@@ -153,7 +151,7 @@ socket.on('query_ingame', () => {
 
 socket.on('winner', (playerName, gameWord) => {
     guessWindow.innerHTML += `<div><span class="chat-player">${playerName} won!!.</span> <span class="chat-guess">The word was ${gameWord}.</span></div>`;
-    timer(10);
+
 })
 
 socket.on('display_guess', (playerName, guess) => {
@@ -175,4 +173,9 @@ socket.on('start_new_game', () => {
     pictionaryPage.style.display = 'block';
     playerNameBox.style.display = 'none';
     guessWindow.innerHTML = '';
+    clear();
+});
+
+socket.on('clear_draw_screen', () => {
+    clear();
 });
