@@ -6,7 +6,7 @@
     <title>DvG Game</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="./css/style.css">
-    <script type="text/javascript" src="http://localhost:6969/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -27,44 +27,79 @@
         </div>
         <div id="player-name-box" style="display:none;">
             <input type="text" class="browser-default" id="player-name" placeholder="Enter your name">
+
         </div>
     </div>
 
     <!-- Game -->
     <div id="pictionary" class="page">
-        <canvas id="workspace"></canvas>
         <span id="game-code"></span>
         <span id="draw-info"></span>
         <a class="waves-effect waves-light btn-large light-blue accent-3" id="new-word-button">New Word</a>
         <span id="player-info"></span>
         <span id="guess-window"><div></div></span>
-        <main id="draw-window" style="z-index:-1;"></main>
+        <main id="draw-window" style="z-index:-1;">
+            <canvas id="board"></canvas>
+        </main>
         <div id="draw-controls" class="sidebar">
             <ul>
                 <li>
                     <label for="weight">Stroke:</label>
-                    <input type="range" id="weight" min="2" max="10" />
+                    <input type="range" id="weight" min="2" max="10" value="5" onchange="changeLineWidth()" />
                 </li>
                 <li>
                     <label for="color">Color:</label>
-                    <input type="color" id="color" />
+                    <input type="color" id="color" value="#ff0000" onchange="changeColor()" />
                 </li>
                 <li>
-                    <button id="clear-button">CLEAR<i class="fa fa-trash"></i></button>
+                    <button onclick="setTool('pen')">Pen<i class="fa fa-trash"></i></button>
                 </li>
-
+                <li>
+                    <button onclick="setTool('line')">Line<i class="fa fa-trash"></i></button>
+                </li>
+                <li>
+                    <button onclick="setTool('rect')">Rect<i class="fa fa-trash"></i></button>
+                </li>
+                <li>
+                    <button onclick="undo()">Undo<i class="fa fa-trash"></i></button>
+                </li>
+                <li>
+                    <button onclick="redo()">Redo<i class="fa fa-trash"></i></button>
+                </li>
+                <li>
+                    <button id="clear-button" onclick="clear()">Clear<i class="fa fa-trash"></i></button>
+                </li>
             </ul>
         </div>
         <input class="brower-default" type="text" placeholder="Let's guess what they drawing.." id="guesser-input">
     </div>
-
-
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.6/p5.js"></script> -->
     <script src="./js/index.js"></script>
-    <script src="./js/paint.js"></script>
+    <script src="./js/paint1.js"></script>
+    <script type="text/javascript">
+        function changeColor() {
+            p.color = document.getElementById('color').value;
+        }
 
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js" integrity="sha512-Y5MDU6RaF5h5HE5BgqJlKkV12kbkbIgWHutcT+XHHNOUzr+HHjWZGC02sqEguuPglmFms3cc08WH2PhQ5rF8Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
-    <!-- <script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+        function changeLineWidth(lineWidth) {
+            p.lineWidth = document.getElementById('weight').value;
+        }
+
+        function setTool(tool) {
+            p.tool = tool;
+        }
+
+        function undo() {
+            p.undo();
+        }
+
+        function redo() {
+            p.redo();
+        }
+
+        function clear() {
+            p.clear();
+        }
+    </script>
 </body>
 
 </html>

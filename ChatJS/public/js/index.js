@@ -1,4 +1,4 @@
-var socket = io.connect();
+var socket = io();
 
 let loginPage = document.querySelector('#login');
 let loginBox = document.querySelector('#login-box');
@@ -7,6 +7,8 @@ let playerName = document.querySelector('#player-name');
 let pictionaryPage = document.querySelector('#pictionary');
 let newGameButton = document.querySelector('#new-game-button');
 let joinGame = document.querySelector('#join-game');
+let timeStage = document.querySelector('#stage-time');
+let loopStage = document.querySelector('#stage-loop');
 let drawInfo = document.querySelector('#draw-info');
 let guesserInput = document.querySelector('#guesser-input');
 let gameNotFound = document.querySelector('#game-not-found');
@@ -42,6 +44,7 @@ newGameButton.addEventListener('click', () => {
     loginBox.style.display = "none";
     playerNameBox.style.display = "block";
     gameInitMode = "new";
+
 })
 
 joinGame.addEventListener('keyup', (e) => {
@@ -53,10 +56,12 @@ joinGame.addEventListener('keyup', (e) => {
     }
 });
 
+
+
 playerName.addEventListener('keyup', (e) => {
     if (e.keyCode === 13 && playerName.value != '') {
         if (gameInitMode === 'new') {
-            socket.emit('new_game', playerName.value);
+            socket.emit('new_game', { name: playerName.value });
         } else {
             socket.emit('join_game', joinGame.value, playerName.value);
         }
@@ -64,6 +69,7 @@ playerName.addEventListener('keyup', (e) => {
         gameNotFound.style.display = 'none';
         pictionaryPage.style.display = 'block';
         playerNameBox.style.display = 'none';
+        setGame.style.display = 'none';
         inGame = true;
     }
 });
@@ -92,6 +98,7 @@ socket.on('game_found', () => {
 });
 
 socket.on('game_not_found', () => {
+    // hide_all_pages();
     hidePages();
     loginPage.style.display = 'block';
     loginBox.style.display = 'flex';
@@ -109,7 +116,6 @@ socket.on('game_word', (word) => {
 });
 
 socket.on('active_players', (players) => {
-    console.log(players);
     playerInfo.innerHTML = '';
     players.forEach((player) => {
         if (player.role === 'drawer') {
@@ -121,15 +127,16 @@ socket.on('active_players', (players) => {
 });
 
 socket.on('player_role', (role) => {
+    sessionStorage.setItem("role", role);
     if (role === 'drawer') {
-        clearr();
         pictionaryPage.style.display = 'block';
         drawInfo.style.display = 'block';
         guesserInput.style.display = 'none';
         newWordButton.style.display = 'block';
         drawControls.style.display = 'block';
         // enable drawing if drawer
-        canvas.addEventListener('mousedown', start, false);
+        // mouseDragged = drawOnDrag;
+        // mouseClicked = drawOnClick;
     } else {
         pictionaryPage.style.display = 'block';
         drawInfo.style.display = 'none';
@@ -137,7 +144,8 @@ socket.on('player_role', (role) => {
         newWordButton.style.display = 'none';
         drawControls.style.display = 'none';
         // disable drawing if guesser
-        canvas.removeEventListener('mousedown', start, false);
+        // mouseDragged = function() {return};
+        // mouseClicked = function() {return};
     }
 });
 
@@ -151,7 +159,7 @@ socket.on('query_ingame', () => {
 
 socket.on('winner', (playerName, gameWord) => {
     guessWindow.innerHTML += `<div><span class="chat-player">${playerName} won!!.</span> <span class="chat-guess">The word was ${gameWord}.</span></div>`;
-
+    // timer(10);
 })
 
 socket.on('display_guess', (playerName, guess) => {

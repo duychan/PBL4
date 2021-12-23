@@ -8,7 +8,7 @@ class User {
         this.socket = socket
     }
 
-    isDrawer() {
+    isDrawe() {
         return this.drawer
     }
 

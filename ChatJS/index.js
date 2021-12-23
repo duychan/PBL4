@@ -1,14 +1,16 @@
 const express = require('express');
 const app = express();
 const http = require("http").createServer(app);
-const io = require('socket.io')(http)
-const port = 6969;
+const { Server } = require('socket.io')
+const io = new Server(http);
+const port = 3000;
 const fs = require('fs')
 
 let connections = []
 let gameWords = {}
 let gameCode = 0
 let wordList = []
+let host = false
 
 fs.readFile('trimmed_word_list.json', (err, data) => {
     if (err) {
@@ -19,10 +21,10 @@ fs.readFile('trimmed_word_list.json', (err, data) => {
     }
 })
 
-io.on('connection', (socket) => {
+io.sockets.on('connection', (socket) => {
     connections.push(socket);
     console.log(`Connected: ${connections.length} sockets connected`);
-    socket.emit('getInstanceId', { id: socket.id });
+
     socket.emit('query_ingame');
     socket.on('answer_ingame', (inGame) => {
         if (inGame === true) {
@@ -46,7 +48,7 @@ io.on('connection', (socket) => {
             }
         }
 
-        // broadcast that socket has left the game
+        // broadcast that this socket has left the game
         socket.broadcast.to(socket.gameCode).emit('player_left', socket.playerName);
         io.to(socket.gameCode).emit('active_players', getActivePlayers(socket.gameCode));
 
@@ -54,7 +56,7 @@ io.on('connection', (socket) => {
         console.log(`Disconnected: ${connections.length} sockets connected`);
     });
 
-    socket.on('new_game', (playerName) => {
+    socket.on('new_game', (data) => {
         // initialize game
         gameCode = generateGameCode();
         currentWord = getGameWord(wordList)
@@ -64,7 +66,8 @@ io.on('connection', (socket) => {
 
         // initialize player
         socket.gameCode = gameCode;
-        socket.playerName = playerName;
+        socket.time_stage = data.time * 1000;
+        socket.playerName = data.name;
         socket.role = 'drawer';
         socket.score = 0;
 
@@ -103,20 +106,49 @@ io.on('connection', (socket) => {
         }
     });
 
-    // socket.on('draw_event', (line_data) => {
-    //     // block guessers from sending drawings to the other players
-    //     if (socket.role === 'drawer') {
-    //         socket.broadcast.to(socket.gameCode).emit('draw_data', line_data);
-    //     }
-    // });
+    socket.on('mouse_down', function(data) {
+        socket.to(socket.gameCode).emit('mouse_down', data);
+        // socket.to(room_id).emit('mouse_down',data);
+    })
+    socket.on('mouse_move', function(data) {
+        socket.to(socket.gameCode).emit('mouse_move', data);
+    })
+    socket.on('mouse_up', function() {
+        socket.to(socket.gameCode).emit('mouse_up');
+    })
+    socket.on('undo', function() {
+        socket.to(socket.gameCode).emit('undo');
+    })
+    socket.on('redo', function() {
+        socket.to(socket.gameCode).emit('redo');
+    })
+    socket.on('lineTemp', function() {
+        socket.to(socket.gameCode).emit('lineTemp');
+    })
+    socket.on('drawLine', function(data) {
+        socket.to(socket.gameCode).emit('drawLine', data);
+    })
+    socket.on('drawRect', function(data) {
+            socket.to(socket.gameCode).emit('drawRect', data);
+        })
+        // socket.on('draw_event', (line_data) => {
+        // 	// block guessers from sending drawings to the other players
+        // 	if (socket.role === 'drawer') {
+        // 		socket.broadcast.to(socket.gameCode).emit('draw_data', line_data);
+        // 	}
+        // });
 
     socket.on('make_guess', (guess) => {
         if (guess === '') {
             return;
         } else if (guess.toLowerCase() === getCurrentWord(socket.gameCode).toLowerCase()) {
+            socket.time_stage /= 2;
             io.to(socket.gameCode).emit('winner', socket.playerName, getCurrentWord(socket.gameCode));
             console.log(` Game #${socket.gameCode}: ${socket.playerName} won! (word was "${getCurrentWord(socket.gameCode)}")`);
-            setTimeout(startNewGame, 1000, socket);
+            if (!host) {
+                setTimeout(startNewGame, 10000, socket);
+            }
+            host = true;
         } else {
             io.to(socket.gameCode).emit('display_guess', socket.playerName, guess);
         }
@@ -130,27 +162,27 @@ io.on('connection', (socket) => {
             io.to(socket.gameCode).emit('clear_draw_screen');
         }
     });
-    ///
 
-    socket.on('startDraw', res => {
-        io.to(socket.gameCode).emit('startFromServer', {...res, id: socket.id })
-    });
-    socket.on('Drawing', res => {
-        io.to(socket.gameCode).emit('drawingFromServer', {...res, id: socket.id });
-    });
-    socket.on('clear', res => {
-        io.to(socket.gameCode).emit('clearFromServer', {...res, id: socket.id });
-    });
-
-    ///
-    ;
-});
-
-http.listen(port, function() {
-    console.log("Running")
+    socket.on('clear_draw_screen', () => {
+        if (socket.role === 'drawer') {
+            io.to(socket.gameCode).emit('clear_draw_screen');
+            // drawer (and only the drawer) can request all screens to be cleared
+        }
+    })
 })
 
+
+
 app.use(express.static(__dirname + '/public'));
+
+function gameLoop(loop, game_code) {
+    let sockets = getClientsFromGame(game_code)
+    for (let i = 0; i < loop; i++) {
+        sockets.forEach(element => {
+            startNewGame(element);
+        })
+    }
+}
 
 function generateGameCode() {
     return String(getRandomNumberInRange(100000, 999999));
@@ -190,6 +222,7 @@ function getCurrentWord(gameCode) {
 }
 
 function startNewGame(socket) {
+    host = false;
     gameWords[socket.gameCode] = getGameWord(wordList);
     getClientsFromGame(socket.gameCode).forEach((s) => {
         s.role = 'guesser';
@@ -201,3 +234,6 @@ function startNewGame(socket) {
     io.to(socket.gameCode).emit('start_new_game');
     io.to(socket.gameCode).emit('active_players', getActivePlayers(socket.gameCode));
 }
+http.listen(port, function() {
+    console.log("Running")
+})

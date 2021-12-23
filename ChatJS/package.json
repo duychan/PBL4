@@ -1,20 +1,19 @@
 {
-    "name": "chat-box",
-    "version": "1.0.0",
-    "description": "My first app",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "nodemon --inspect src/index.js"
-    },
-    "keywords": [
-        "Chat",
-        "Box"
-    ],
-    "author": "TriMinhCao",
-    "license": "ISC",
-    "dependencies": {
-        "express": "^4.17.1",
-        "socket.io": "^4.3.1"
-    }
+  "name": "chat-box",
+  "version": "1.0.0",
+  "description": "My first app",
+  "main": "index.js",
+  "scripts": {
+    "run": "node index.js"
+  },
+  "keywords": [
+    "Chat",
+    "Box"
+  ],
+  "author": "TriMinhCao",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.3.1"
+  }
 }
